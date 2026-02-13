@@ -25,25 +25,87 @@ from firebase_admin import credentials, firestore
 import uuid
 
 # ═══════════════════════════════════════════════════════════════
-# CUSTOM CSS FOR CHAT INPUT STYLING
+# CUSTOM CSS - TRANSPARENT UI WITH PROPER STYLING
 # ═══════════════════════════════════════════════════════════════
 st.markdown("""
     <style>
-    /* Change chat input text and textarea color to grey */
-    .stChatInput textarea,
-    .stChatInput input {
+    /* ═════════════════════════════════════════════════════════════
+       SIDEBAR - MAKE COMPLETELY TRANSPARENT
+       ═════════════════════════════════════════════════════════════ */
+    
+    section[data-testid="stSidebar"] {
+        background-color: transparent !important;
+        background: transparent !important;
+        border-right: 1px solid rgba(250, 250, 250, 0.1) !important;
+    }
+    
+    section[data-testid="stSidebar"] > div {
+        background: transparent !important;
+    }
+    
+    /* Sidebar content background */
+    .sidebar .sidebar-content {
+        background: transparent !important;
+    }
+    
+    /* ═════════════════════════════════════════════════════════════
+       REMOVE WHITE BORDERS FROM CHAT INPUT & CONTAINERS
+       ═════════════════════════════════════════════════════════════ */
+    
+    /* Chat input - NO WHITE BACKGROUND */
+    .stChatInput {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    [data-testid="stChatInput"] {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    [data-testid="stChatInput"] > div {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* Chat input field styling */
+    [data-testid="stChatInput"] input {
+        background: rgba(28, 31, 38, 0.3) !important;
+        border: 1px solid rgba(255, 107, 53, 0.2) !important;
+        border-radius: 20px !important;
         color: #b0b0b0 !important;
     }
     
-    /* Change chat input placeholder color to grey */
-    .stChatInput textarea::placeholder,
-    .stChatInput input::placeholder {
+    [data-testid="stChatInput"] input:focus {
+        border-color: rgba(255, 107, 53, 0.5) !important;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1) !important;
+        background: rgba(28, 31, 38, 0.5) !important;
+    }
+    
+    /* Chat input placeholder */
+    [data-testid="stChatInput"] input::placeholder {
         color: #808080 !important;
     }
     
-    /* Match input background with chatbox */
-    .stChatInput {
+    /* Chat container with no white */
+    .stChatInputContainer {
         background-color: transparent !important;
+        border: none !important;
+    }
+    
+    /* Main content area - transparent */
+    .main {
+        background: transparent !important;
+    }
+    
+    .main .block-container {
+        background: transparent !important;
+    }
+    
+    /* Remove white from all text containers */
+    [data-testid="stVerticalBlock"] {
+        background: transparent !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -1480,72 +1542,96 @@ st.set_page_config(
 st.markdown("""
 <style>
     /* ══════════════════════════════════════════════════════════════
-       FORCE CHAT INPUT TO STAY AT BOTTOM (AGGRESSIVE FIX)
+       TRANSPARENT SIDEBAR FIX
        ══════════════════════════════════════════════════════════════ */
     
-    /* Target the actual chat input container */
-    [data-testid="stChatInput"] {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        background: #f5f5f5 !important;
-        padding: 20px !important;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
-        border-top: 2px solid #e0e0e0 !important;
-        z-index: 999999 !important;
-        margin: 0 !important;
-    }
-    
-    /* Also target parent container */
-    .stChatFloatingInputContainer {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        background: #f5f5f5 !important;
-        padding: 20px !important;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.15) !important;
-        border-top: 2px solid #e0e0e0 !important;
-        z-index: 999999 !important;
-    }
-    
-    /* Style the input field itself - NO BORDER */
-[data-testid="stChatInput"] input {
-    border-radius: 24px !important;
-    border: none !important;
-    background: white !important;
-    padding: 12px 20px !important;
-    font-size: 16px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-}
-
-[data-testid="stChatInput"] input:focus {
-    border: none !important;
-    box-shadow: 0 0 0 3px rgba(255,107,53,0.15) !important;
-    outline: none !important;
-}
-    
-    /* Add huge bottom padding to main content area */
-    .main .block-container {
-        padding-bottom: 180px !important;
-    }
-    
-    /* Ensure chat messages scroll properly */
-    section[data-testid="stVerticalBlock"] {
-        padding-bottom: 180px !important;
-    }
-    
-    /* Hide default Streamlit footer that might overlap */
-    footer {
-        display: none !important;
-    }
-    
-    /* Ensure sidebar doesn't overlap input */
+    /* Make sidebar transparent */
     section[data-testid="stSidebar"] {
-        z-index: 99999 !important;
+        background: transparent !important;
+        background-color: transparent !important;
     }
-/* ══════════════════════════════════════════════════════════════
+    
+    section[data-testid="stSidebar"] > div {
+        background: transparent !important;
+    }
+    
+    /* Sidebar header background */
+    .css-1d391kg {
+        background: transparent !important;
+    }
+    
+    /* ══════════════════════════════════════════════════════════════
+       REMOVE WHITE BORDERS FROM CHAT INPUT
+       ══════════════════════════════════════════════════════════════ */
+    
+    /* Main chat container - NO WHITE */
+    [data-testid="stChatInput"] {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    [data-testid="stChatInput"] > div {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* Chat input wrapper - transparent */
+    .stChatInputContainer {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    /* Remove white container background */
+    .stChatInput {
+        background-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    /* Input field styling */
+    [data-testid="stChatInput"] input {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 107, 53, 0.3) !important;
+        border-radius: 20px !important;
+        color: #b0b0b0 !important;
+        padding: 10px 16px !important;
+    }
+    
+    [data-testid="stChatInput"] input:focus {
+        border-color: rgba(255, 107, 53, 0.6) !important;
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+    }
+    
+    [data-testid="stChatInput"] input::placeholder {
+        color: #808080 !important;
+    }
+    
+    /* ══════════════════════════════════════════════════════════════
+       REMOVE WHITE FROM MAIN CONTENT AREA
+       ══════════════════════════════════════════════════════════════ */
+    
+    /* Main content background */
+    .main {
+        background: transparent !important;
+    }
+    
+    .main .block-container {
+        background: transparent !important;
+    }
+    
+    /* Remove white from blocks */
+    [data-testid="stVerticalBlock"] {
+        background: transparent !important;
+    }
+    
+    /* Hide white backgrounds from containers */
+    .dataframe {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    /* ══════════════════════════════════════════════════════════════
        STYLE FILE UPLOAD AS + ICON BUTTON
        ══════════════════════════════════════════════════════════════ */
     
@@ -1556,7 +1642,7 @@ st.markdown("""
     }
     
     [data-testid="stFileUploader"] > div {
-        background: white !important;
+        background: rgba(255, 107, 53, 0.2) !important;
         border-radius: 50% !important;
         width: 50px !important;
         height: 50px !important;
@@ -2109,7 +2195,7 @@ st.markdown("""
     .stChatInputContainer, [data-testid="stChatInputContainer"] {
         background-color: transparent !important;
         background: transparent !important;
-        border-top: 1px solid rgba(250, 250, 250, 0.1) !important;
+        border: none !important;
     }
     
     /* Pinned bottom chat container - DARK */
@@ -2152,19 +2238,21 @@ st.markdown("""
     /* Chat input */
     [data-testid="stChatInput"] {
         flex: 1 !important;
+        background: transparent !important;
+        border: none !important;
     }
 
     [data-testid="stChatInput"] > div {
-        border-radius: 999px !important;
-        border: 2px solid rgba(255, 176, 124, 0.3) !important;
-        background: rgba(255, 248, 240, 0.05) !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(255, 176, 124, 0.3) !important;
+        background: rgba(28, 31, 38, 0.4) !important;
         transition: all 0.2s;
     }
     
     [data-testid="stChatInput"] > div:focus-within {
-        border-color: rgba(255, 107, 53, 0.5) !important;
+        border-color: rgba(255, 107, 53, 0.6) !important;
         box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
-        background: rgba(255, 248, 240, 0.08) !important;
+        background: rgba(28, 31, 38, 0.6) !important;
     }
 
     [data-testid="stChatInput"] input {
@@ -2178,7 +2266,7 @@ st.markdown("""
     }
 
     [data-testid="stChatInput"] input:focus {
-        box-shadow: 0 0 0 3px rgba(255,107,53,0.2) !important;
+        box-shadow: none !important;
         outline: none !important;
     }
     
@@ -2189,6 +2277,7 @@ st.markdown("""
     /* Info boxes */
     .stInfo, .stSuccess, .stWarning, .stError {
         background-color: rgba(28, 131, 225, 0.1) !important;
+        border: 1px solid rgba(28, 131, 225, 0.3) !important;
     }
     
     /* Expanders */
@@ -2198,8 +2287,13 @@ st.markdown("""
     
     /* Buttons */
     .stButton > button {
-        background-color: transparent !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        background-color: rgba(255, 107, 53, 0.1) !important;
+        border: 1px solid rgba(255, 107, 53, 0.3) !important;
+        color: #FF6B35 !important;
+    }
+    
+    .stButton > button:hover {
+        background-color: rgba(255, 107, 53, 0.2) !important;
     }
     
     /* Fixed chat input container at bottom */
@@ -2208,10 +2302,10 @@ st.markdown("""
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        background: linear-gradient(to top, rgba(14, 17, 23, 1) 80%, rgba(14, 17, 23, 0)) !important;
+        background: transparent !important;
         padding: 20px 16px 10px 16px !important;
         z-index: 999 !important;
-        border-top: 1px solid rgba(250, 250, 250, 0.1) !important;
+        border-top: none !important;
     }
     
     /* Chat messages container - add bottom padding */
