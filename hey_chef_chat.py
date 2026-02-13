@@ -5,7 +5,15 @@ from streamlit_autorefresh import st_autorefresh
 from groq import Groq
 import re
 from datetime import datetime, timedelta
-import speech_recognition as sr
+
+# Try to import speech recognition (optional - fails on Streamlit Cloud)
+try:
+    import speech_recognition as sr
+    SPEECH_RECOGNITION_AVAILABLE = True
+except (ImportError, ModuleNotFoundError):
+    sr = None
+    SPEECH_RECOGNITION_AVAILABLE = False
+
 from gtts import gTTS
 import io
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -659,6 +667,9 @@ st.components.v1.html("""
 # ================= VOICE HELPERS =================
 def listen_for_wake_word_chunk():
     """Listen for a short audio chunk and check for wake word"""
+    if not SPEECH_RECOGNITION_AVAILABLE:
+        return False, "Voice not available on this platform"
+    
     recognizer = sr.Recognizer()
     recognizer.energy_threshold = 4000  # Adjust for sensitivity
     recognizer.dynamic_energy_threshold = True
@@ -690,6 +701,9 @@ def listen_for_wake_word_chunk():
 
 def record_voice_command():
     """Record full voice command after wake word detected"""
+    if not SPEECH_RECOGNITION_AVAILABLE:
+        return None
+    
     recognizer = sr.Recognizer()
     
     try:
@@ -998,6 +1012,9 @@ IMPORTANT: Extract EXACT quantities. Don't estimate - use the measurements provi
 
 def transcribe_audio(audio_bytes):
     """Convert speech to text using Google Speech Recognition"""
+    if not SPEECH_RECOGNITION_AVAILABLE:
+        return "Voice transcription not available on this platform"
+    
     try:
         recognizer = sr.Recognizer()
         audio = sr.AudioData(audio_bytes, 16000, 2)
@@ -1473,6 +1490,7 @@ def extract_steps(text):
             break
     
     if not steps:
+        
         steps = [s.strip() for s in steps_text.split('\n\n') if s.strip()]
     
     return steps[:15]
