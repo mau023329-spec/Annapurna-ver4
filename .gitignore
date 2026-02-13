@@ -1,0 +1,68 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/cache/
+.streamlit/.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase
+firebase_credentials.json*
+*credentials*.json
+
+# Environment
+.env
+.venv
+env/
+venv/
+
+# Testing
+.pytest_cache/
+.coverage
+
+# Logs
+*.log
+
+# Temp files
+temp/
+tmp/
+*.tmp
+
+# Voice files (if generated)
+*.wav
+*.mp3
+voice_commands.json
