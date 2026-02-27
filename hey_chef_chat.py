@@ -231,124 +231,181 @@ if "show_onboarding" not in st.session_state:
 if "user_preferences" not in st.session_state:
     st.session_state.user_preferences = {}
 
+# ================= AUTHENTICATION FUNCTIONS ==============       
 # ================= AUTHENTICATION FUNCTIONS =================
 
+def hash_password(password):
+    """Simple password hashing using hashlib"""
+    import hashlib
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def create_account(name, email, password):
+    """Create new user account in Firestore"""
+    try:
+        # Check if email already exists
+        users_ref = db.collection("users")
+        existing = users_ref.where("email", "==", email).limit(1).get()
+        
+        if len(list(existing)) > 0:
+            return False, "Email already registered. Please login instead."
+        
+        user_id = f"user_{uuid.uuid4().hex}"
+        doc_ref = db.collection("users").document(user_id)
+        doc_ref.set({
+            "user_id": user_id,
+            "name": name,
+            "email": email,
+            "password_hash": hash_password(password),
+            "created_at": datetime.now().isoformat()
+        })
+        return True, user_id
+    except Exception as e:
+        return False, str(e)
+
+def login_user(email, password):
+    """Verify credentials and return user data"""
+    try:
+        users_ref = db.collection("users")
+        results = users_ref.where("email", "==", email).limit(1).get()
+        
+        users = list(results)
+        if not users:
+            return False, None, "No account found with this email."
+        
+        user_data = users[0].to_dict()
+        
+        if user_data.get("password_hash") != hash_password(password):
+            return False, None, "Incorrect password."
+        
+        return True, user_data, "Login successful!"
+    except Exception as e:
+        return False, None, str(e)
+
 def show_login():
-    """Display login page with Firebase Google Sign-In"""
-    st.title("🍳 Welcome to Annapurna")
-    st.markdown("### Your AI-Powered Cooking Assistant")
+    """Display login/signup page"""
     
-    # Add FirebaseUI and Firebase SDKs
     st.markdown("""
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-        <script src="https://cdn.firebase.com/libs/firebaseui/6.0.0/firebaseui.js"></script>
-        <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/6.0.0/firebaseui.css" />
-        <style>
-            .firebaseui-container { max-width: 100%; }
-            #firebaseui-container { margin-top: 20px; }
-        </style>
+        <div style='text-align: center; padding: 20px 0;'>
+            <h1>🍳 Annapurna</h1>
+            <p style='color: #888; font-size: 16px;'>Your AI-Powered Cooking Assistant</p>
+        </div>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+    # Tab selector stored in session state
+    if "auth_tab" not in st.session_state:
+        st.session_state.auth_tab = "login"
     
-    with col1:
-        st.subheader("Sign in with Google")
-        
-        # Firebase initialization and Google Sign-In
-        st.markdown(f"""
-        <div id="firebaseui-container"></div>
-        <script>
-            // Initialize Firebase
-            const firebaseConfig = {{
-                apiKey: "{st.secrets['firebase_web']['apiKey']}",
-                authDomain: "{st.secrets['firebase_web']['authDomain']}",
-                projectId: "{st.secrets['firebase_web']['projectId']}",
-                storageBucket: "{st.secrets['firebase_web']['storageBucket']}",
-                messagingSenderId: "{st.secrets['firebase_web']['messagingSenderId']}",
-                appId: "{st.secrets['firebase_web']['appId']}"
-            }};
-            
-            // Initialize Firebase if not already done
-            if (!window.firebase || !window.firebase.apps || window.firebase.apps.length === 0) {{
-                firebase.initializeApp(firebaseConfig);
-            }}
-            
-            const auth = firebase.auth();
-            
-            // Initialize FirebaseUI
-            const ui = new firebaseui.auth.AuthUI(auth);
-            
-            // Configure UI
-            const uiConfig = {{
-                signInFlow: 'popup',
-                signInOptions: [
-                    {{
-                        provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-                        customParameters: {{
-                            prompt: 'select_account'
-                        }}
-                    }}
-                ],
-                callbacks: {{
-                    signInSuccessWithAuthResult: function(authResult, redirectUrl) {{
-                        const user = authResult.user;
-                        
-                        // Send user data to Streamlit via query params
-                        window.parent.postMessage({{
-                            type: 'streamlit:setComponentValue',
-                            data: {{
-                                user_id: user.uid,
-                                email: user.email,
-                                name: user.displayName,
-                                photo: user.photoURL
-                            }}
-                        }}, '*');
-                        
-                        return false;
-                    }},
-                    uiShown: function() {{
-                        document.getElementById('loader').style.display = 'none';
-                    }}
-                }},
-                credentialHelper: firebaseui.auth.CredentialHelper.NONE
-            }};
-            
-            // Only start UI if not already rendered
-            if (!ui.isPendingRedirect()) {{
-                ui.start('#firebaseui-container', uiConfig);
-            }}
-            
-            // Monitor auth state changes
-            auth.onAuthStateChanged(function(user) {{
-                if (user) {{
-                    // User is signed in
-                    window.parent.postMessage({{
-                        type: 'google-login-success',
-                        data: {{
-                            user_id: user.uid,
-                            email: user.email,
-                            name: user.displayName,
-                            photo: user.photoURL
-                        }}
-                    }}, '*');
-                }}
-            }});
-        </script>
-        <div id="loader" style="text-align: center; padding: 20px;">
-            <p>🔐 Initializing Google Sign-In...</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.caption("Secure login via Google Firebase")
+    col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.subheader("Or continue as Guest")
-        st.info("Quick access without login\n(Data won't be saved)")
+        # Tab buttons
+        tab_col1, tab_col2 = st.columns(2)
+        with tab_col1:
+            if st.button(
+                "🔑 Login",
+                use_container_width=True,
+                type="primary" if st.session_state.auth_tab == "login" else "secondary"
+            ):
+                st.session_state.auth_tab = "login"
+                st.rerun()
+        with tab_col2:
+            if st.button(
+                "📝 Create Account",
+                use_container_width=True,
+                type="primary" if st.session_state.auth_tab == "signup" else "secondary"
+            ):
+                st.session_state.auth_tab = "signup"
+                st.rerun()
         
-        if st.button("🚀 Continue as Guest", use_container_width=True):
+        st.markdown("---")
+        
+        # ── LOGIN TAB ──────────────────────────────────────────────
+        if st.session_state.auth_tab == "login":
+            st.markdown("#### Welcome back 👋")
+            
+            with st.form("login_form"):
+                email = st.text_input("📧 Email", placeholder="you@example.com")
+                password = st.text_input("🔒 Password", type="password", placeholder="Your password")
+                
+                login_btn = st.form_submit_button("Login →", use_container_width=True, type="primary")
+                
+                if login_btn:
+                    if not email or not password:
+                        st.error("Please fill in all fields.")
+                    else:
+                        with st.spinner("Logging in..."):
+                            success, user_data, message = login_user(email, password)
+                        
+                        if success:
+                            st.session_state.user_id = user_data["user_id"]
+                            st.session_state.user_email = user_data["email"]
+                            st.session_state.user_name = user_data["name"]
+                            st.session_state.is_authenticated = True
+                            st.session_state.show_onboarding = False
+                            st.success(f"Welcome back, {user_data['name']}! 🎉")
+                            time.sleep(0.8)
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {message}")
+            
+            # Google login option below the form
+            st.markdown("---")
+            st.markdown("<p style='text-align:center; color:#888; font-size:13px;'>Or sign in with</p>", unsafe_allow_html=True)
+            if st.button("🔵  Continue with Google", use_container_width=True):
+                st.info("💡 Google Sign-In requires Firebase setup. Coming soon!", icon="ℹ️")
+                # ← You can re-wire your existing Firebase Google flow here later
+        
+        # ── SIGNUP TAB ─────────────────────────────────────────────
+        else:
+            st.markdown("#### Create your account 🚀")
+            
+            with st.form("signup_form"):
+                name = st.text_input("👤 Full Name", placeholder="John Doe")
+                email = st.text_input("📧 Email", placeholder="you@example.com")
+                password = st.text_input("🔒 Password", type="password", placeholder="Min. 8 characters")
+                confirm_password = st.text_input("🔒 Confirm Password", type="password", placeholder="Repeat password")
+                
+                signup_btn = st.form_submit_button("Create Account →", use_container_width=True, type="primary")
+                
+                if signup_btn:
+                    # Validation
+                    if not all([name, email, password, confirm_password]):
+                        st.error("Please fill in all fields.")
+                    elif len(password) < 8:
+                        st.error("Password must be at least 8 characters.")
+                    elif password != confirm_password:
+                        st.error("Passwords don't match.")
+                    elif "@" not in email:
+                        st.error("Please enter a valid email address.")
+                    else:
+                        with st.spinner("Creating your account..."):
+                            success, result = create_account(name, email, password)
+                        
+                        if success:
+                            st.session_state.user_id = result
+                            st.session_state.user_email = email
+                            st.session_state.user_name = name
+                            st.session_state.is_authenticated = True
+                            st.session_state.show_onboarding = True
+                            st.success("Account created! Let's set you up 🎉")
+                            st.balloons()
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error(f"❌ {result}")
+            
+            # Google signup option
+            st.markdown("---")
+            st.markdown("<p style='text-align:center; color:#888; font-size:13px;'>Or sign up with</p>", unsafe_allow_html=True)
+            if st.button("🔵  Sign up with Google", use_container_width=True):
+                st.info("💡 Google Sign-In coming soon!", icon="ℹ️")
+        
+        # ── GUEST ACCESS ───────────────────────────────────────────
+        st.markdown("---")
+        st.markdown("<p style='text-align:center; color:#888; font-size:13px;'>Just browsing?</p>", unsafe_allow_html=True)
+        if st.button("👤  Continue as Guest", use_container_width=True):
             st.session_state.user_id = f"guest_{uuid.uuid4().hex[:8]}"
-            st.session_state.user_email = "guest@kitchenmate.app"
+            st.session_state.user_email = "guest@annapurna.app"
             st.session_state.user_name = "Guest"
             st.session_state.is_authenticated = True
             st.session_state.show_onboarding = True
