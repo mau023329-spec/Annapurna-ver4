@@ -31,7 +31,12 @@ import random
 import firebase_admin
 from firebase_admin import credentials, firestore
 import uuid
-
+st.set_page_config(
+    page_title="Annapurna - AI Cooking Assistant",
+    page_icon="🍳",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 # ═══════════════════════════════════════════════════════════════
 # CUSTOM CSS - TRANSPARENT UI WITH PROPER STYLING
 # ═══════════════════════════════════════════════════════════════
@@ -1607,12 +1612,7 @@ Fiber: X g
 Be realistic using standard Indian/home-cooked food values. Do NOT give total for whole recipe — only per serving."""
 
 # ================= MAIN APP =================
-st.set_page_config(
-    page_title="Annapurna - AI Cooking Assistant",
-    page_icon="🍳",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+
 # Add this right after your st.set_page_config() in the MAIN APP section
 st.markdown("""
 <style>
