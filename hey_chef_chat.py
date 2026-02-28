@@ -3235,6 +3235,6 @@ st.caption("Mobile Chrome/Safari recommended for install.")
 # ── Footer ──
 st.markdown("""
 <div style="text-align:center;padding:24px 0 8px 0;">
-    <span style="color:rgba(255,117,24,0.5);font-size:0.78rem;font-weight:600;letter-spacing:0.06em;">KITCHENMATE BY MANAS</span>
+    <span style="color:rgba(255,117,24,0.5);font-size:0.78rem;font-weight:600;letter-spacing:0.06em;">KITCHENMATE BY INDIAN INSTINCT STUDIOS</span>
 </div>
 """, unsafe_allow_html=True)
