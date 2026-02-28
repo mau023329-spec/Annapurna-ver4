@@ -1,6 +1,7 @@
 # 🍳 Annapurna - AI Cooking Assistant
 
 Your intelligent AI-powered cooking companion that helps you cook amazing Indian dishes!
+Try https://kitchenmate.streamlit.app
 
 ## ✨ Features
 
@@ -153,3 +154,4 @@ Built with:
 **Happy Cooking! 🍳✨**
 
 Made with ❤️ for food lovers everywhere
+
