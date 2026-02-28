@@ -3247,4 +3247,4 @@ Mobile: Look for 'Install' in address bar or browser menu.
 
 # Footer
 st.markdown("---")
-st.caption("Annapurna By Manas")
+st.caption("Annapurna By Indian Instinct Studios")
